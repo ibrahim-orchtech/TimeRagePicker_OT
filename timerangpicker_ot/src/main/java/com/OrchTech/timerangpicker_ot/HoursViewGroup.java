@@ -1,15 +1,12 @@
 package com.OrchTech.timerangpicker_ot;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.support.annotation.Nullable;
+import android.support.v4.util.Pair;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.Pair;
-import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
