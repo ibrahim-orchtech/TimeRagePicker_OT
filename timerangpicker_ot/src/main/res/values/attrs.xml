@@ -7,7 +7,7 @@
         <attr name="textColor" format="color"/>
         <attr name="shapeRadius" format="integer"/>
         <attr name="shapeBorderWidth" format="integer"/>
-        <attr name="circleImage" format="integer"/>
+        <attr name="circleImage" format="reference"/>
         <attr name="circleHeight" format="integer"/>
         <attr name="shapeBorderColor" format="color"/>
         <attr name="hourSpace" format="integer"/>
