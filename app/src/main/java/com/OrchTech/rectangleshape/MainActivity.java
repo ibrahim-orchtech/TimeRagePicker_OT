@@ -1,6 +1,7 @@
 package com.OrchTech.rectangleshape;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -29,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                from.setText("from: "+ timePicker.getStartTime());
-                to.setText("To: "+ timePicker.getEndTime());
+                startActivity(new Intent(MainActivity.this,MainActivity.class));
 
             }
         });

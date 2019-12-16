@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 
 public class Circle {
-    private static int count = 0;
+    private  int count = 0;
     private Bitmap bitmap;
     private Context mContext;
     private Point point = new Point();
@@ -16,9 +16,9 @@ public class Circle {
     private int height = 100;
 
 
-    public Circle(Context context){
+    public Circle(Context context,int id){
         mContext = context;
-        id = count++;
+        this.id = id;
         bitmap = BitmapFactory.decodeResource(context.getResources(),
                 resourceId);
         bitmap = Bitmap.createScaledBitmap(bitmap, height, height, false);

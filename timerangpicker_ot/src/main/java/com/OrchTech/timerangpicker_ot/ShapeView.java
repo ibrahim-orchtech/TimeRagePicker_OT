@@ -144,8 +144,8 @@ public class ShapeView extends View {
     private void setUpDots() {
         paint = new Paint();
         setFocusable(true);
-        Circle circle1 = new Circle(context);
-        Circle circle2 = new Circle(context);
+        Circle circle1 = new Circle(context,0);
+        Circle circle2 = new Circle(context,1);
         circle1.setHeight(circleHeight);
         circle2.setHeight(circleHeight);
         circle1.setResource(circleImage);
