@@ -330,6 +330,8 @@ public class TimePicker extends RelativeLayout {
             cell_height = positions.get(2).second - positions.get(1).second;
             step = (int)(stepRatio*cell_height);
             difInHeight = cell_height-(numOfStepPerCell*step);
+            // min time is 0.5 hour
+            minShapeHeight = circleHeight+(3*step);
 
         }
     }
