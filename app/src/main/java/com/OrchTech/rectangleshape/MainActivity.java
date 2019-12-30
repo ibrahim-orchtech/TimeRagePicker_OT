@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         final TextView from = findViewById(R.id.from);
         final TextView to = findViewById(R.id.to);
         timePicker = findViewById(R.id.timePicker);
-
+        timePicker.invalidate();
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,5 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timePicker.setSelectedIndex(10);
     }
 }

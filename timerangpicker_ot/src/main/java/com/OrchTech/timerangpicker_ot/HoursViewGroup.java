@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
@@ -65,7 +66,7 @@ class HoursViewGroup extends LinearLayout {
         return hourStrings[i];
     }
     boolean is_first_hour = true;
-    private void addHour(String name){
+    private void addHour(String name, final int index){
         HourLine hourLine = new HourLine(context);
         hourLine.setText(name);
         hourLine.setVerticalBorderWidth(verticalLineWidth);
@@ -79,6 +80,13 @@ class HoursViewGroup extends LinearLayout {
             hourLine.setTopSpace(topSpace);
 
         }
+        hourLine.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                listener.onClickCell(index);
+            }
+        });
         count++;
         items.add(hourLine);
         addView(hourLine);
@@ -167,7 +175,7 @@ class HoursViewGroup extends LinearLayout {
             else
                 hoursViewGroup.hourStrings = hoursViewGroup.context.getResources().getStringArray(R.array.hours_24);
             for(int i = hoursViewGroup.firstHour;i<hoursViewGroup.lastHour;i++) {
-                hoursViewGroup.addHour(hoursViewGroup.getHourName(i));
+                hoursViewGroup.addHour(hoursViewGroup.getHourName(i),i);
                 hoursViewGroup.getItems().get(i).invalidate();
                 final ViewTreeObserver vto = hoursViewGroup.getChildAt(i).getViewTreeObserver();
                 final int finalI = i;

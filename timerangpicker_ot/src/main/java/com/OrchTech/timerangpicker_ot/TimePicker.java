@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -63,6 +64,41 @@ public class TimePicker extends RelativeLayout {
     private int verLineWidth = 1;
     private int horLineHeight = 1;
     private boolean is24Hour = false;
+    DrawerInterface drawerInterface =  new DrawerInterface() {
+        @Override
+        public void onDrawCell(int index, int x, int y) {
+
+            //  here we save positions of each cell added to hoursGroup
+            if (index <= positions.size()) {
+                if (index == 0) {
+                    positions.add(new Pair<>(x, 0));
+                } else if (index == 1) {
+                    int current_y = positions.get(index - 1).second
+                            + hoursViewGroup.getItems().get(0).getHorBorderHeight()
+                            + hoursViewGroup.getItems().get(0).getHorViewPosition();
+                    positions.add(new Pair<>(x, current_y));
+                } else {
+                    int current_y = positions.get(index - 1).second + hoursViewGroup.getItemHeight();
+                    positions.add(new Pair<>(x, current_y));
+                    if (index == 23) {
+                        int last_y = positions.get(index).second + hoursViewGroup.getItemHeight();
+                        positions.add(new Pair<>(x, last_y));
+                    }
+                }
+            }
+            // draw shape after finish build hoursGroup
+            if (index == numOfHours - 1) {
+                calculateCellHeight();
+                buildShape();
+                setSelectedCell(selected_cell);
+            }
+        }
+
+        @Override
+        public void onClickCell(int index) {
+            setSelectedCell(index);
+        }
+    };
     public TimePicker(Context context) {
         super(context);
         this.context = context;
@@ -236,38 +272,7 @@ public class TimePicker extends RelativeLayout {
     }
 
     private void buildHoursLayout() {
-        HoursViewGroup.Builder builder = new HoursViewGroup.Builder(context, new DrawerInterface() {
-            @Override
-            public void onDrawCell(int index, int x, int y) {
-
-                //  here we save positions of each cell added to hoursGroup
-                if (index <= positions.size()) {
-                    if (index == 0) {
-                        positions.add(new Pair<>(x, 0));
-                    } else if (index == 1) {
-                        int current_y = positions.get(index - 1).second
-                                + hoursViewGroup.getItems().get(0).getHorBorderHeight()
-                                + hoursViewGroup.getItems().get(0).getHorViewPosition();
-                        positions.add(new Pair<>(x, current_y));
-                    } else {
-                        int current_y = positions.get(index - 1).second + hoursViewGroup.getItemHeight();
-                        positions.add(new Pair<>(x, current_y));
-                        if (index == 23) {
-                            int last_y = positions.get(index).second + hoursViewGroup.getItemHeight();
-                            positions.add(new Pair<>(x, last_y));
-                        }
-                    }
-                }
-                // draw shape after finish build hoursGroup
-                if (index == numOfHours - 1) {
-                    calculateCellHeight();
-                    buildShape();
-                    setSelectedCell(selected_cell);
-                }
-            }
-
-        }
-        );
+        HoursViewGroup.Builder builder = new HoursViewGroup.Builder(context,drawerInterface);
         builder.is24Hour(is24Hour);
         builder.setFontSize(textSize);
         builder.setHorizontalViewHeight(horLineHeight);
@@ -288,10 +293,13 @@ public class TimePicker extends RelativeLayout {
         layout.addView(textView2);
         layout.invalidate();
     }
-
+    public void setSelectedIndex(int index){
+        selected_cell = index;
+    }
     public void setSelectedCell(int cell_index) {
         selected_cell = cell_index;
         int top, bottom;
+        moveBall1 =moveBall2 = countBall1 = countBall2 = 0;
         if (selected_cell == 0) {
             top = positions.get(0).second;
             bottom = positions.get(1).second;
@@ -299,17 +307,27 @@ public class TimePicker extends RelativeLayout {
             top = positions.get(4).second;
             bottom = positions.get(5).second;
         }
+        if(selectedIndexFirstBall!=-1){
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        }
+        if(selectedIndexSecondBall!=-1){
+            hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+
+        }
         selectedIndexFirstBall = selected_cell - 1;
         selectedIndexSecondBall = selected_cell;
         Log.e("first_selection", selectedIndexFirstBall + " " + selectedIndexSecondBall);
         layout.removeView(shapeView);
-        LayoutParams shapeLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        buildShape();
+        LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 (bottom - top) + (shapeView.getCircleHeight()));
         shapeView.setX(hoursViewGroup.getTextWidth() + 30);
         shapeLayoutParams.setMargins(0, 0, 0, 0);
         shapeView.setY(positions.get(selected_cell).second - (shapeView.getCircleHeight() / 2));
         shapeView.setLayoutParams(shapeLayoutParams);
         shapeView.invalidate();
+        shapeView.requestLayout();
+        Log.e("height_",shapeView.getHeight()+" "+shapeLayoutParams.height);
         Log.e("shapeView", shapeView.getY() + (shapeView.getCircleHeight() / 2) + "");
         for (int i = 0; i < 24; i++) {
             Log.e("shapeView_" + i, positions.get(i).second + " ");
