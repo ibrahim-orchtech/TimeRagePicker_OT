@@ -96,7 +96,7 @@ public class TimePicker extends RelativeLayout {
 
         @Override
         public void onClickCell(int index) {
-            setSelectedCell(index);
+            setOnReSelectCell(index);
         }
     };
     public TimePicker(Context context) {
@@ -296,10 +296,11 @@ public class TimePicker extends RelativeLayout {
     public void setSelectedIndex(int index){
         selected_cell = index;
     }
+    int old_height = -1;
     public void setSelectedCell(int cell_index) {
         selected_cell = cell_index;
         int top, bottom;
-        moveBall1 =moveBall2 = countBall1 = countBall2 = 0;
+        moveBall1 = moveBall2 = countBall1 = countBall2 = 0;
         if (selected_cell == 0) {
             top = positions.get(0).second;
             bottom = positions.get(1).second;
@@ -321,12 +322,13 @@ public class TimePicker extends RelativeLayout {
         buildShape();
         LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 (bottom - top) + (shapeView.getCircleHeight()));
+        old_height = shapeLayoutParams.height;
         shapeView.setX(hoursViewGroup.getTextWidth() + 30);
         shapeLayoutParams.setMargins(0, 0, 0, 0);
         shapeView.setY(positions.get(selected_cell).second - (shapeView.getCircleHeight() / 2));
         shapeView.setLayoutParams(shapeLayoutParams);
         shapeView.invalidate();
-        shapeView.requestLayout();
+        //shapeView.requestLayout();
         Log.e("height_",shapeView.getHeight()+" "+shapeLayoutParams.height);
         Log.e("shapeView", shapeView.getY() + (shapeView.getCircleHeight() / 2) + "");
         for (int i = 0; i < 24; i++) {
@@ -341,7 +343,46 @@ public class TimePicker extends RelativeLayout {
         textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
 
     }
+    public void setOnReSelectCell(int cell_index){
+        selected_cell = cell_index;
+        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+        selectedIndexFirstBall = cell_index-1;
+        int height = (shapeView.getBalls().get(1).getY()+(shapeView.getBalls().get(1).getHeightOfCircle()/2))
+                -(shapeView.getBalls().get(0).getY()+(shapeView.getBalls().get(0).getHeightOfCircle()/2));
+        int numOfMovies = height/step;
+        int numOfCells = (int)(numOfMovies*stepRatio);
+        selectedIndexSecondBall = cell_index-1+numOfCells;
+        old_height = shapeView.getLayoutParams().height;
+        layout.removeView(shapeView);
+        buildShape();
+        LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                old_height);
+        shapeView.setLayoutParams(shapeLayoutParams);
+        shapeView.setX(hoursViewGroup.getTextWidth() + 30);
+        shapeView.setY(positions.get(selected_cell).second - (shapeView.getCircleHeight() / 2));
+        shapeView.invalidate();
+        layout.addView(shapeView);
+        layout.removeView(textView1);
+        layout.removeView(textView2);
+        if(numOfMovies%((int)(1/stepRatio))==0){
+            hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
+            textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
+        }else{
+            String hour= hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
+            moveBall2 = (numOfMovies%((int)(1/stepRatio)));
+            textView2.setText(hour.substring(0, 3) +
+                    fraction[Math.abs(moveBall2+4)%4] + hour.substring(5));
+            int y = positions.get(selectedIndexSecondBall+1).second+((moveBall2)*topSpace/5);
+            textView2.setY(y);
+            textView2.invalidate();
+            layout.addView(textView2);
+            layout.invalidate();
+        }
+        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
+        textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
 
+    }
     int difInHeight = 0;
     private void calculateCellHeight() {
         if (positions != null && positions.size() > 2) {
