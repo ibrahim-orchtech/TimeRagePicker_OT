@@ -551,4 +551,5 @@ public class TimePicker extends RelativeLayout {
             layout.invalidate();
         }
     }
+
 }

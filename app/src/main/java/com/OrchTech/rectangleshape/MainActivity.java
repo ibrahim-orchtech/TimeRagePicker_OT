@@ -6,18 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.OrchTech.timerangpicker_ot.ShapeView;
 import com.OrchTech.timerangpicker_ot.TimePicker;
 
 public class MainActivity extends AppCompatActivity {
 
-    HoursViewGroup hoursViewGroup;
-    ShapeView shapeView;
-    ScrollView scrollView;
     TimePicker timePicker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,15 +26,19 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,MainActivity.class));
+                from.setText(timePicker.getStartTime());
+                to.setText(timePicker.getEndTime());
+                //     startActivity(new Intent(MainActivity.this, MainActivity.class));
 
             }
         });
+        //timePicker.setSelectedCell(2);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        timePicker.setSelectedIndex(10);
+        timePicker.setSelectedIndex(5);
     }
 }

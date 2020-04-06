@@ -10,75 +10,62 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ibrahim.ali
  * Date 05,December,2019
  * Company OrchTech
+ * this class to draw rectangle shape
  */
 public class ShapeView extends View {
 
     MoveInterface listener;
-    private Point point1;
-    private Point point2;
     private Context context;
-    private ArrayList<Circle> balls = new ArrayList<>();
+    private List<Circle> balls = new ArrayList<>();
     private int balID = 0;
     private Paint paint;
     private Canvas canvas;
-    private boolean is_first_draw = true;
+    private boolean isFirstDraw = true;
     private int circleHeight = 50;
     private int strokeWidth = 5;
     private int raduis = 30;
     private int strockColor = Color.parseColor("#CCCCCC");
     private int circleImage = R.mipmap.icon;
+
     public ShapeView(Context context, MoveInterface listener) {
         super(context);
         this.context = context;
         this.listener = listener;
-        //setBackgroundColor(Color.parseColor("#CCCCCC"));
     }
 
     public int getCircleHeight() {
         return circleHeight;
     }
-    public void setCircleHeight(int value){
-        circleHeight = value;
-    }
 
-    public int getStrokeWidth() {
-        return strokeWidth;
+    public void setCircleHeight(int value) {
+        circleHeight = value;
     }
 
     public void setStrokeWidth(int strokeWidth) {
         this.strokeWidth = strokeWidth;
     }
 
-    public int getRaduis() {
-        return raduis;
-    }
 
     public void setRaduis(int raduis) {
         this.raduis = raduis;
     }
 
-    public int getStrockColor() {
-        return strockColor;
-    }
 
     public void setStrockColor(int strockColor) {
         this.strockColor = strockColor;
-    }
-
-    public int getCircleImage() {
-        return circleImage;
     }
 
     public void setCircleImage(int circleImage) {
         this.circleImage = circleImage;
     }
 
-    public ArrayList<Circle> getBalls() {
+    public List<Circle> getBalls() {
         return balls;
     }
 
@@ -87,49 +74,35 @@ public class ShapeView extends View {
     protected void onDraw(Canvas canvas) {
 
 
-        if (is_first_draw) {
+        if (isFirstDraw) {
 
             setUpDots();
-            is_first_draw = false;
+            isFirstDraw = false;
         }
         drawShape(canvas);
     }
 
     public boolean onTouchEvent(MotionEvent event) {
-        int eventaction = event.getAction();
+        int eventAction = event.getAction();
 
-        int X = (int) event.getX();
-        int Y = (int) event.getY();
+        int eventX = (int) event.getX();
+        int eventY = (int) event.getY();
 
-        switch (eventaction) {
+        switch (eventAction) {
 
             case MotionEvent.ACTION_UP:
-                int x = (int) event.getX();
                 int y = (int) event.getY();
                 listener.onFinishMove(y);
                 break;
             case MotionEvent.ACTION_DOWN:
-                balID = -1;
-                for (Circle ball : balls) {
-                    int centerX = ball.getX() + ball.getHeightOfCircle();
-                    int centerY = ball.getY() + ball.getHeightOfCircle();
-                    paint.setColor(Color.CYAN);
-                    if (Math.abs(X - centerX) <= ball.getHeightOfCircle() && Math.abs(Y - centerY) <= ball.getHeightOfCircle()) {
-                        balID = ball.getID();
-                        listener.onStartMove();
-                        break;
-                    } else {
-                        balID = -1;
-                    }
-                }
+                pickUpCircle(eventX,eventY);
                 break;
-
-            case MotionEvent.ACTION_MOVE:
+                default:
                 if (balID > -1) {
                     if (balID == 0) {
-                        listener.onMove(canvas, 0, X, Y, balls.get(1).getX(), balls.get(1).getY());
+                        listener.onMove(canvas, 0, eventX, eventY, balls.get(1).getX(), balls.get(1).getY());
                     } else if (balID == 1) {
-                        listener.onMove(canvas, 1, balls.get(0).getX(), balls.get(0).getY(), X, Y);
+                        listener.onMove(canvas, 1, balls.get(0).getX(), balls.get(0).getY(), eventX, eventY);
                     }
 
                     invalidate();
@@ -140,32 +113,70 @@ public class ShapeView extends View {
         return true;
 
     }
+    private void pickUpCircle(int eventX,int eventY){
+        balID = -1;
+        for (Circle ball : balls) {
+            int centerX = ball.getX() + ball.getHeightOfCircle();
+            int centerY = ball.getY() + ball.getHeightOfCircle();
+            paint.setColor(Color.CYAN);
+            if (Math.abs(eventX - centerX) <= ball.getHeightOfCircle() && Math.abs(eventY - centerY) <= ball.getHeightOfCircle()) {
+                balID = ball.getID();
+                listener.onStartMove();
+                break;
+            } else {
+                balID = -1;
+            }
+        }
+    }
 
+    /**
+     * create first circle and put its x and y
+     * set id for first ball to 0
+     */
+    private void createFirstCircle(){
+        Circle circle1 = new Circle(context, 0);
+        circle1.setHeight(circleHeight);
+        circle1.setResource(circleImage);
+        Point point1 = new Point();
+        point1.x = 100;
+        point1.y = 0;
+        circle1.setPoint(point1);
+        circle1.setHeight(circleHeight);
+        balls.add(circle1);
+    }
+
+    /**
+     * create second Circle and put its x and y
+     * circle_id will be 1
+     */
+    private void createSecondCircle(){
+
+        Circle circle2 = new Circle(context, 1);
+        circle2.setHeight(circleHeight);
+        circle2.setResource(circleImage);
+        canvas = new Canvas();
+        Point point2 = new Point();
+        point2.x = (int) (this.getWidth() - this.getX() - getCircleHeight() - 50);
+        point2.y = this.getHeight() - balls.get(0).getHeightOfCircle();
+        circle2.setPoint(point2);
+        circle2.setHeight(circleHeight);
+        balls.add(circle2);
+    }
+
+    /**
+     * setUpDots it will create two Circles
+     */
     private void setUpDots() {
         paint = new Paint();
         setFocusable(true);
-        Circle circle1 = new Circle(context,0);
-        Circle circle2 = new Circle(context,1);
-        circle1.setHeight(circleHeight);
-        circle2.setHeight(circleHeight);
-        circle1.setResource(circleImage);
-        circle2.setResource(circleImage);
-        canvas = new Canvas();
-        point1 = new Point();
-        point1.x = 100;
-        point1.y = 0;
-        point2 = new Point();
-        point2.x = (int) (this.getWidth() - this.getX() - getCircleHeight()-50);
-        point2.y = this.getHeight() - circle1.getHeightOfCircle();
-        circle1.setPoint(point1);
-        circle2.setPoint(point2);
-        circle1.setHeight(circleHeight);
-        circle2.setHeight(circleHeight);
-        balls.add(circle1);
-        balls.add(circle2);
-
+        createFirstCircle();
+        createSecondCircle();
     }
 
+    /**
+     * @param canvas
+     * this method will draw shape by using paint and add stroke and color
+     */
     private void drawShape(Canvas canvas) {
         paint.setAntiAlias(true);
         paint.setDither(true);
@@ -175,9 +186,9 @@ public class ShapeView extends View {
         paint.setStrokeWidth(strokeWidth);
 
 
-        canvas.drawRoundRect(new RectF(getLeft()+50,
+        canvas.drawRoundRect(new RectF(getLeft() + 50,
                 balls.get(0).getY() + balls.get(0).getHeightOfCircle() / 2,
-                getWidth() - getX() -30,
+                getWidth() - getX() - 30,
                 balls.get(1).getY() + balls.get(0).getHeightOfCircle() / 2), raduis, raduis, paint);
         for (Circle ball : balls) {
             canvas.drawBitmap(ball.getBitmap(), ball.getX(), ball.getY(),
@@ -185,6 +196,11 @@ public class ShapeView extends View {
         }
     }
 
+    /**
+     * @param x2
+     * @param y2
+     * this method will update rectangle by new position
+     */
     public void updateViews(int x2, int y2) {
         paint.setColor(Color.CYAN);
         if (balID == 0) {
@@ -196,12 +212,6 @@ public class ShapeView extends View {
             balls.get(1).setX(balls.get(1).getX());
         }
         invalidate();
-    }
-    public int getCenterOfSecondBall(){
-        return balls.get(1).getY()+(balls.get(1).getHeightOfCircle()/2);
-    }
-    public int getCenterOfFirstBall(){
-        return balls.get(0).getY()+balls.get(0).getHeightOfCircle();
     }
 
 }
