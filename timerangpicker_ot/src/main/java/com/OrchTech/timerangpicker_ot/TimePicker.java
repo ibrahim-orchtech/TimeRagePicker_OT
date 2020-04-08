@@ -39,6 +39,8 @@ public class TimePicker extends RelativeLayout {
     View view;
     TextView textView1;
     TextView textView2;
+    int oldHeight = -1;
+    int difInHeight = 0;
     private HoursViewGroup hoursViewGroup;
     private ShapeView shapeView;
     private Context context;
@@ -62,13 +64,54 @@ public class TimePicker extends RelativeLayout {
     private int selectedIndexFirstBall = -1;
     private int selectedIndexSecondBall = -1;
     private int topSpace = 100;
+    MoveInterface moveInterface = new MoveInterface() {
+        @Override
+        public void onMove(Canvas canvas, int ballId, int x1, int y1, int x2, int y2) {
+            scrollView.setScrollingEnabled(false);
+            // top ball
+            if (ballId == FIRST_BALL_ID) {
+                int dif = Math.abs(y1 - (shapeView.getBalls().get(0).getY()));
+                step = (int) (cellHeight * stepRatio);
+                if (dif < step) return;
+
+                //Move Up
+                if (y1 < 0) {
+                    moveFirstBallUp(x2);
+                }
+                // Move Down
+                else {
+                    moveFirstBallDown(x2);
+                }
+
+            }
+            // second Ball
+            else {
+                int dif = Math.abs(y2 - shapeView.getBalls().get(1).getY() - shapeView.getBalls().get(1).getHeightOfCircle());
+                step = (int) (cellHeight * stepRatio);
+                if (dif < step) return;
+                // ball 2 scroll down
+                if (y2 > shapeView.getHeight()) {
+                    moveSecondBallDown(x2, y2);
+                } else {
+                    moveSecondBallUp(x2);
+                }
+            }
+            shapeView.invalidate();
+        }
+
+        @Override
+        public void onStartMove() {
+            scrollView.setScrollingEnabled(false);
+        }
+
+        @Override
+        public void onFinishMove(int y) {
+            scrollView.setScrollingEnabled(true);
+
+        }
+    };
     private int circleImage = R.mipmap.icon;
-    private int textColor = Color.parseColor(GRAY_COLOR);
-    private int selectedTextColor = Color.parseColor(GRAY_COLOR);
-    private int verLineWidth = 1;
-    private int horLineHeight = 1;
-    private boolean is24Hour = false;
-    DrawerInterface drawerInterface =  new DrawerInterface() {
+    DrawerInterface drawerInterface = new DrawerInterface() {
         @Override
         public void onDrawCell(int index, int x, int y) {
 
@@ -100,10 +143,16 @@ public class TimePicker extends RelativeLayout {
 
         @Override
         public void onClickCell(int index) {
-            if(index==0)return;
+            if (index == 0) return;
             setOnReSelectCell(index);
         }
     };
+    private int textColor = Color.parseColor(GRAY_COLOR);
+    private int selectedTextColor = Color.parseColor(GRAY_COLOR);
+    private int verLineWidth = 1;
+    private int horLineHeight = 1;
+    private boolean is24Hour = false;
+
     public TimePicker(Context context) {
         super(context);
         this.context = context;
@@ -112,7 +161,7 @@ public class TimePicker extends RelativeLayout {
     }
 
     public TimePicker(Context context, AttributeSet attributeSet) {
-        super(context,attributeSet);
+        super(context, attributeSet);
         this.context = context;
         positions = new ArrayList<>();
         getAttributes(attributeSet);
@@ -147,88 +196,7 @@ public class TimePicker extends RelativeLayout {
     }
 
     private void buildShape() {
-        shapeView = new ShapeView(context, new MoveInterface() {
-            @Override
-            public void onMove(Canvas canvas, int ballId, int x1, int y1, int x2, int y2) {
-                scrollView.setScrollingEnabled(false);
-                // top ball
-                if (ballId == FIRST_BALL_ID) {
-                    int dif = Math.abs(y1 - (shapeView.getBalls().get(0).getY()));
-                    step = (int) (cellHeight * stepRatio);
-                    if (dif < step) return;
-
-                    //Move Up
-                    if (y1 < 0) {
-                        moveFirstBallUp(x2);
-                    }
-                    // Move Down
-                    else {
-                        moveFirstBallDown(x2);
-                    }
-
-                }
-                // second Ball
-                else {
-                    int dif = y2 - shapeView.getBalls().get(1).getY() - shapeView.getBalls().get(1).getHeightOfCircle();
-                    if (dif < 0) dif *= -1;
-                    step = (int) (cellHeight * stepRatio);
-                    if (dif < step) return;
-                    // ball 2 scroll down
-                    if (y2 > shapeView.getHeight()) {
-
-                        countBall2++;
-                        if (countBall2 % numOfStepPerCell == 0)
-                            step += difInHeight;
-                        if (y2 > layout.getHeight()) return;
-                        if (Math.abs(shapeView.getY() + shapeView.getHeight() - (shapeView.getCircleHeight() / 2)
-                                -positions.get(24).second)<step)
-                            return;
-                        // to scroll down
-                        if (shapeView.getY() + shapeView.getHeight() + step >=
-                                scrollView.getScrollY() + scrollView.getHeight()) {
-                            scrollView.scrollBy(0, step);
-                        }
-                        shapeView.setY(shapeView.getY());
-                        shapeView.getLayoutParams().height = shapeView.getHeight() + step;
-                        shapeView.setLayoutParams(shapeView.getLayoutParams());
-                        shapeView.updateViews(x2, shapeView.getHeight() + step);
-                        shapeView.invalidate();
-
-                        showTime(SECOND_BALL_ID, false, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
-
-                    } else {
-                        // ball 2 scroll up
-                        if (shapeView.getHeight() <= minShapeHeight) {
-                            return;
-                        }
-                        if (shapeView.getY() + shapeView.getHeight() - scrollView.getScrollY() - step <= 0) {
-                            scrollView.scrollBy(0, -1 * step);
-                        }
-
-                        countBall2--;
-                        if (countBall2 % numOfStepPerCell == 0)
-                            step += difInHeight;
-                        shapeView.getLayoutParams().height = shapeView.getHeight() - step;
-                        shapeView.setLayoutParams(shapeView.getLayoutParams());
-                        shapeView.updateViews(x2, shapeView.getHeight() - step);
-                        shapeView.invalidate();
-                        showTime(SECOND_BALL_ID, true, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
-                    }
-                }
-                shapeView.invalidate();
-            }
-
-            @Override
-            public void onStartMove() {
-                scrollView.setScrollingEnabled(false);
-            }
-
-            @Override
-            public void onFinishMove(int y) {
-                scrollView.setScrollingEnabled(true);
-
-            }
-        });
+        shapeView = new ShapeView(context, moveInterface);
         shapeView.setRaduis(shapeRadius);
         shapeView.setCircleHeight(circleHeight);
         shapeView.setStrokeWidth(shapeStroke);
@@ -240,7 +208,7 @@ public class TimePicker extends RelativeLayout {
     }
 
     private void buildHoursLayout() {
-        HoursViewGroup.Builder builder = new HoursViewGroup.Builder(context,drawerInterface);
+        HoursViewGroup.Builder builder = new HoursViewGroup.Builder(context, drawerInterface);
         builder.is24Hour(is24Hour);
         builder.setFontSize(textSize);
         builder.setHorizontalViewHeight(horLineHeight);
@@ -261,10 +229,11 @@ public class TimePicker extends RelativeLayout {
         layout.addView(textView2);
         layout.invalidate();
     }
-    public void setSelectedIndex(int index){
+
+    public void setSelectedIndex(int index) {
         selectedCell = index;
     }
-    int oldHeight = -1;
+
     public void setSelectedCell(int cellIndex) {
         selectedCell = cellIndex;
         int top;
@@ -277,10 +246,10 @@ public class TimePicker extends RelativeLayout {
             top = positions.get(4).second;
             bottom = positions.get(5).second;
         }
-        if(selectedIndexFirstBall!=-1){
+        if (selectedIndexFirstBall != -1) {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
         }
-        if(selectedIndexSecondBall!=-1){
+        if (selectedIndexSecondBall != -1) {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
 
         }
@@ -291,10 +260,10 @@ public class TimePicker extends RelativeLayout {
         LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 (bottom - top) + (shapeView.getCircleHeight()));
         oldHeight = shapeLayoutParams.height;
-        if(Locale.getDefault().equals(new Locale("ar"))){
+        if (Locale.getDefault().equals(new Locale("ar"))) {
             shapeView.setX(0);
             shapeLayoutParams.setMargins(0, 0, 160, 0);
-        }else{
+        } else {
             shapeView.setX(hoursViewGroup.getTextWidth() + 30);
             shapeLayoutParams.setMargins(0, 0, 0, 0);
         }
@@ -304,35 +273,36 @@ public class TimePicker extends RelativeLayout {
         layout.addView(shapeView);
         layout.removeView(textView1);
         layout.removeView(textView2);
-        if(selectedIndexFirstBall!=-1) {
+        if (selectedIndexFirstBall != -1) {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
         }
         hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
-        if(selectedIndexFirstBall!=-1) {
+        if (selectedIndexFirstBall != -1) {
             textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
         }
         textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
 
     }
-    public void setOnReSelectCell(int cellIndex){
-        int height = (shapeView.getBalls().get(1).getY()+(shapeView.getBalls().get(1).getHeightOfCircle()/2))
-                -(shapeView.getBalls().get(0).getY()+(shapeView.getBalls().get(0).getHeightOfCircle()/2));
-        int numOfMovies = height/step;
-        int numOfCells = (int)(numOfMovies*stepRatio);
+
+    public void setOnReSelectCell(int cellIndex) {
+        int height = (shapeView.getBalls().get(1).getY() + (shapeView.getBalls().get(1).getHeightOfCircle() / 2))
+                - (shapeView.getBalls().get(0).getY() + (shapeView.getBalls().get(0).getHeightOfCircle() / 2));
+        int numOfMovies = height / step;
+        int numOfCells = (int) (numOfMovies * stepRatio);
         selectedCell = cellIndex;
-        if(cellIndex-1+numOfCells>23){
-            int dif = cellIndex-1+numOfCells-23;
-            setOnReSelectCell(cellIndex-dif);
+        if (cellIndex - 1 + numOfCells > 23) {
+            int dif = cellIndex - 1 + numOfCells - 23;
+            setOnReSelectCell(cellIndex - dif);
             return;
         }
-        if(selectedIndexFirstBall!=-1) {
+        if (selectedIndexFirstBall != -1) {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
         }
-        if(selectedIndexSecondBall!=-1) {
+        if (selectedIndexSecondBall != -1) {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
         }
-        selectedIndexFirstBall = cellIndex-1;
-        selectedIndexSecondBall = cellIndex-1+numOfCells;
+        selectedIndexFirstBall = cellIndex - 1;
+        selectedIndexSecondBall = cellIndex - 1 + numOfCells;
         oldHeight = shapeView.getLayoutParams().height;
         layout.removeView(shapeView);
         buildShape();
@@ -345,33 +315,33 @@ public class TimePicker extends RelativeLayout {
         layout.addView(shapeView);
         layout.removeView(textView1);
         layout.removeView(textView2);
-        if(numOfMovies%((int)(1/stepRatio))==0){
+        if (numOfMovies % ((int) (1 / stepRatio)) == 0) {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
             textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
-        }else{
-            String hour= hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
-            moveBall2 = (numOfMovies%((int)(1/stepRatio)));
+        } else {
+            String hour = hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
+            moveBall2 = (numOfMovies % ((int) (1 / stepRatio)));
             textView2.setText(hour.substring(0, 3) +
-                    fraction[Math.abs(moveBall2+4)%4] + hour.substring(5));
-            int y = positions.get(selectedIndexSecondBall+1).second+((moveBall2)*topSpace/5);
+                    fraction[Math.abs(moveBall2 + 4) % 4] + hour.substring(5));
+            int y = positions.get(selectedIndexSecondBall + 1).second + ((moveBall2) * topSpace / 5);
             textView2.setY(y);
             textView2.invalidate();
             layout.addView(textView2);
             layout.invalidate();
         }
-        if(selectedIndexFirstBall==-1)selectedIndexFirstBall=0;
+        if (selectedIndexFirstBall == -1) selectedIndexFirstBall = 0;
         hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
         textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
 
     }
-    int difInHeight = 0;
+
     void calculateCellHeight() {
         if (positions != null && positions.size() > 2) {
             cellHeight = positions.get(2).second - positions.get(1).second;
-            step = (int)(stepRatio*cellHeight);
-            difInHeight = cellHeight-(numOfStepPerCell*step);
+            step = (int) (stepRatio * cellHeight);
+            difInHeight = cellHeight - (numOfStepPerCell * step);
             // min time is 0.5 hour
-            minShapeHeight = circleHeight+(3*step);
+            minShapeHeight = circleHeight + (3 * step);
 
         }
     }
@@ -401,7 +371,7 @@ public class TimePicker extends RelativeLayout {
             selectedTextColor = a.getColor(R.styleable.TimePicker_selectedTextColor, selectedTextColor);
             verLineWidth = a.getColor(R.styleable.TimePicker_verLineWidth, verLineWidth);
             horLineHeight = a.getColor(R.styleable.TimePicker_horLineHeight, horLineHeight);
-            is24Hour = a.getBoolean(R.styleable.TimePicker_hourFormat,false);
+            is24Hour = a.getBoolean(R.styleable.TimePicker_hourFormat, false);
         } finally {
             a.recycle();
         }
@@ -410,13 +380,13 @@ public class TimePicker extends RelativeLayout {
 
     public void showTime(int ball, boolean isUp, int y) {
         if (ball == FIRST_BALL_ID) {
-            moveFirstBall(isUp,y);
-        }
-        else{
-            moveSecondBall(isUp,y);
+            moveFirstBall(isUp, y);
+        } else {
+            moveSecondBall(isUp, y);
         }
     }
-    private void moveFirstBall(boolean isUp, int y){
+
+    private void moveFirstBall(boolean isUp, int y) {
 
         layout.removeView(textView1);
         if (isUp) moveBall1--;
@@ -461,7 +431,7 @@ public class TimePicker extends RelativeLayout {
             layout.removeView(textView1);
             String hour = "";
             if (selectedIndexFirstBall >= 0) {
-                if (isUp){
+                if (isUp) {
                     if (selectedIndexFirstBall == 0) {
                         if (hoursViewGroup.is24Hours()) hour = STRING_12;
                         else
@@ -469,8 +439,7 @@ public class TimePicker extends RelativeLayout {
                     } else {
                         hour = hoursViewGroup.getItems().get(selectedIndexFirstBall - 1).getText();
                     }
-                }
-                else
+                } else
                     hour = hoursViewGroup.getItems().get(selectedIndexFirstBall).getText();
 
             } else {
@@ -489,7 +458,8 @@ public class TimePicker extends RelativeLayout {
         }
 
     }
-    private void moveSecondBall(boolean isUp,int y){
+
+    private void moveSecondBall(boolean isUp, int y) {
 
         layout.removeView(textView2);
         if (isUp) moveBall2--;
@@ -512,14 +482,13 @@ public class TimePicker extends RelativeLayout {
             moveBall2 = 0;
         } else if (moveBall2 == 0) {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
-        }
-        else {
+        } else {
             textView2.setVisibility(VISIBLE);
             if (selectedIndexSecondBall != -1)
                 hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
-            String hour =hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
-            if(isUp){
-                if(selectedIndexSecondBall==0){
+            String hour = hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
+            if (isUp) {
+                if (selectedIndexSecondBall == 0) {
                     if (hoursViewGroup.is24Hours()) hour = STRING_12;
                     else
                         hour = STRING_12_AM;
@@ -528,14 +497,15 @@ public class TimePicker extends RelativeLayout {
                 }
             }
             textView2.setText(hour.substring(0, 3) +
-                    fraction[Math.abs(moveBall2+4)%4] + hour.substring(5));
-            textView2.setY(y-(topSpace/5));
+                    fraction[Math.abs(moveBall2 + 4) % 4] + hour.substring(5));
+            textView2.setY(y - (topSpace / 5));
             textView2.invalidate();
             layout.addView(textView2);
             layout.invalidate();
         }
     }
-    private void moveFirstBallUp(int x2){
+
+    void moveFirstBallUp(int x2) {
         countBall1--;
         if (countBall1 % numOfStepPerCell == 0)
             step += difInHeight;
@@ -554,7 +524,8 @@ public class TimePicker extends RelativeLayout {
         showTime(FIRST_BALL_ID, true, (int) shapeView.getY() + (shapeView.getCircleHeight() / 2));
 
     }
-    private void moveFirstBallDown(int x2){
+
+    void moveFirstBallDown(int x2) {
         // min height to avoid first ball exceed second ball
         if (shapeView.getHeight() <= minShapeHeight) {
             return;
@@ -572,6 +543,50 @@ public class TimePicker extends RelativeLayout {
         shapeView.invalidate();
 
         showTime(FIRST_BALL_ID, false, (int) (shapeView.getY() + (shapeView.getCircleHeight() / 2)));
+
+    }
+
+    void moveSecondBallDown(int x2, int y2) {
+        countBall2++;
+        if (countBall2 % numOfStepPerCell == 0)
+            step += difInHeight;
+        if (y2 > layout.getHeight()) return;
+        if (Math.abs(shapeView.getY() + shapeView.getHeight() - (shapeView.getCircleHeight() / 2)
+                - positions.get(24).second) < step)
+            return;
+        // to scroll down
+        if (shapeView.getY() + shapeView.getHeight() + step >=
+                scrollView.getScrollY() + scrollView.getHeight()) {
+            scrollView.scrollBy(0, step);
+        }
+        shapeView.setY(shapeView.getY());
+        shapeView.getLayoutParams().height = shapeView.getHeight() + step;
+        shapeView.setLayoutParams(shapeView.getLayoutParams());
+        shapeView.updateViews(x2, shapeView.getHeight() + step);
+        shapeView.invalidate();
+
+        showTime(SECOND_BALL_ID, false, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
+
+    }
+
+    void moveSecondBallUp(int x2) {
+
+        // ball 2 scroll up
+        if (shapeView.getHeight() <= minShapeHeight) {
+            return;
+        }
+        if (shapeView.getY() + shapeView.getHeight() - scrollView.getScrollY() - step <= 0) {
+            scrollView.scrollBy(0, -1 * step);
+        }
+
+        countBall2--;
+        if (countBall2 % numOfStepPerCell == 0)
+            step += difInHeight;
+        shapeView.getLayoutParams().height = shapeView.getHeight() - step;
+        shapeView.setLayoutParams(shapeView.getLayoutParams());
+        shapeView.updateViews(x2, shapeView.getHeight() - step);
+        shapeView.invalidate();
+        showTime(SECOND_BALL_ID, true, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
 
     }
 }
