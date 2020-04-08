@@ -30,6 +30,9 @@ public class TimePicker extends RelativeLayout {
     static final int SECOND_BALL_ID = 1;
     static final int NUM_OF_HOURS = 24;
     static final String GRAY_COLOR = "#CCCCCC";
+    static final String STRING_12 = "12:00";
+    static final String STRING_12_AM = "12:00 AM";
+
     RelativeLayout layout;
     CustomScrollView scrollView;
     int[] hoursPos = new int[2];
@@ -468,9 +471,9 @@ public class TimePicker extends RelativeLayout {
                 layout.removeView(textView1);
             } else {
                 String hour = "";
-                if (hoursViewGroup.is24Hours()) hour = "12:00";
+                if (hoursViewGroup.is24Hours()) hour = STRING_12;
                 else
-                    hour = "12:00 Am";
+                    hour = STRING_12_AM;
                 textView1.setText(hour);
                 textView1.setY(0);
                 textView1.setVisibility(VISIBLE);
@@ -493,9 +496,9 @@ public class TimePicker extends RelativeLayout {
             if (selectedIndexFirstBall >= 0) {
                 if (isUp){
                     if (selectedIndexFirstBall == 0) {
-                        if (hoursViewGroup.is24Hours()) hour = "12:00";
+                        if (hoursViewGroup.is24Hours()) hour = STRING_12;
                         else
-                            hour = "12:00 Am";
+                            hour = STRING_12_AM;
                     } else {
                         hour = hoursViewGroup.getItems().get(selectedIndexFirstBall - 1).getText();
                     }
@@ -504,9 +507,9 @@ public class TimePicker extends RelativeLayout {
                     hour = hoursViewGroup.getItems().get(selectedIndexFirstBall).getText();
 
             } else {
-                if (hoursViewGroup.is24Hours()) hour = "12:00";
+                if (hoursViewGroup.is24Hours()) hour = STRING_12;
                 else
-                    hour = "12:00 Am";
+                    hour = STRING_12_AM;
             }
 
             textView1.setText(hour.substring(0, 3) +
@@ -550,9 +553,9 @@ public class TimePicker extends RelativeLayout {
             String hour =hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
             if(isUp){
                 if(selectedIndexSecondBall==0){
-                    if (hoursViewGroup.is24Hours()) hour = "12:00";
+                    if (hoursViewGroup.is24Hours()) hour = STRING_12;
                     else
-                        hour = "12:00 Am";
+                        hour = STRING_12_AM;
                 } else {
                     hour = hoursViewGroup.getItems().get(selectedIndexSecondBall - 1).getText();
                 }
