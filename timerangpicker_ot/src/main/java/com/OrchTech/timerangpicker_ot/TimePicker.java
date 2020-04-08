@@ -153,50 +153,17 @@ public class TimePicker extends RelativeLayout {
                 scrollView.setScrollingEnabled(false);
                 // top ball
                 if (ballId == FIRST_BALL_ID) {
-                    int dif = y1 - (shapeView.getBalls().get(0).getY());
-                    if (dif < 0) dif *= -1;
+                    int dif = Math.abs(y1 - (shapeView.getBalls().get(0).getY()));
                     step = (int) (cellHeight * stepRatio);
                     if (dif < step) return;
 
                     //Move Up
                     if (y1 < 0) {
-                        countBall1--;
-                        if (countBall1 % numOfStepPerCell == 0)
-                            step += difInHeight;
-                        if (shapeView.getY() <= 0) return;
-
-                        if (shapeView.getY() <= scrollView.getScrollY() + step) {
-                            scrollView.scrollBy(0, -step);
-                        }
-
-                        shapeView.setY(shapeView.getY() - step);
-                        shapeView.getLayoutParams().height = shapeView.getHeight() + step;
-                        shapeView.setLayoutParams(shapeView.getLayoutParams());
-                        shapeView.updateViews(x2, shapeView.getHeight() + step);
-                        shapeView.invalidate();
-
-                        showTime(FIRST_BALL_ID, true, (int) shapeView.getY() + (shapeView.getCircleHeight() / 2));
+                        moveFirstBallUp(x2);
                     }
                     // Move Down
                     else {
-
-                        // min height to avoid first ball exceed second ball
-                        if (shapeView.getHeight() <= minShapeHeight) {
-                            return;
-                        }
-                        if (shapeView.getY() + shapeView.getCircleHeight() + step > scrollView.getScrollY() + scrollView.getHeight()) {
-                            scrollView.scrollBy(0, step);
-                        }
-                        countBall1++;
-                        if (countBall1 % numOfStepPerCell == 0)
-                            step += difInHeight;
-                        shapeView.setY(shapeView.getY() + step);
-                        shapeView.getLayoutParams().height = shapeView.getHeight() - step;
-                        shapeView.setLayoutParams(shapeView.getLayoutParams());
-                        shapeView.updateViews(x2, shapeView.getHeight() - step);
-                        shapeView.invalidate();
-
-                        showTime(FIRST_BALL_ID, false, (int) (shapeView.getY() + (shapeView.getCircleHeight() / 2)));
+                        moveFirstBallDown(x2);
                     }
 
                 }
@@ -568,5 +535,43 @@ public class TimePicker extends RelativeLayout {
             layout.invalidate();
         }
     }
+    private void moveFirstBallUp(int x2){
+        countBall1--;
+        if (countBall1 % numOfStepPerCell == 0)
+            step += difInHeight;
+        if (shapeView.getY() <= 0) return;
 
+        if (shapeView.getY() <= scrollView.getScrollY() + step) {
+            scrollView.scrollBy(0, -step);
+        }
+
+        shapeView.setY(shapeView.getY() - step);
+        shapeView.getLayoutParams().height = shapeView.getHeight() + step;
+        shapeView.setLayoutParams(shapeView.getLayoutParams());
+        shapeView.updateViews(x2, shapeView.getHeight() + step);
+        shapeView.invalidate();
+
+        showTime(FIRST_BALL_ID, true, (int) shapeView.getY() + (shapeView.getCircleHeight() / 2));
+
+    }
+    private void moveFirstBallDown(int x2){
+        // min height to avoid first ball exceed second ball
+        if (shapeView.getHeight() <= minShapeHeight) {
+            return;
+        }
+        if (shapeView.getY() + shapeView.getCircleHeight() + step > scrollView.getScrollY() + scrollView.getHeight()) {
+            scrollView.scrollBy(0, step);
+        }
+        countBall1++;
+        if (countBall1 % numOfStepPerCell == 0)
+            step += difInHeight;
+        shapeView.setY(shapeView.getY() + step);
+        shapeView.getLayoutParams().height = shapeView.getHeight() - step;
+        shapeView.setLayoutParams(shapeView.getLayoutParams());
+        shapeView.updateViews(x2, shapeView.getHeight() - step);
+        shapeView.invalidate();
+
+        showTime(FIRST_BALL_ID, false, (int) (shapeView.getY() + (shapeView.getCircleHeight() / 2)));
+
+    }
 }
