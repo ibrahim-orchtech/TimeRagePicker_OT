@@ -24,11 +24,12 @@ import java.util.ArrayList;
  * Company OrchTech
  */
 public class TimePicker extends RelativeLayout {
-    final int TEXT_ID1 = 0X001;
-    final int TEXT_ID2 = 0X002;
-    final int FIRST_BALL_ID = 0;
-    final int SECOND_BALL_ID = 1;
-    private static final int NUM_OF_HOURS = 24;
+    static final int TEXT_ID1 = 0X001;
+    static final int TEXT_ID2 = 0X002;
+    static final int FIRST_BALL_ID = 0;
+    static final int SECOND_BALL_ID = 1;
+    static final int NUM_OF_HOURS = 24;
+    static final String GRAY_COLOR = "#CCCCCC";
     RelativeLayout layout;
     CustomScrollView scrollView;
     int[] hoursPos = new int[2];
@@ -52,15 +53,15 @@ public class TimePicker extends RelativeLayout {
     private int minShapeHeight = 200;
     private int shapeStroke = 5;
     private int circleHeight = 50;
-    private int shapeStrokeColor = Color.parseColor("#CCCCCC");
+    private int shapeStrokeColor = Color.parseColor(GRAY_COLOR);
     private int shapeRadius = 30;
     private int selectedCell = 4;
     private int selectedIndexFirstBall = -1;
     private int selectedIndexSecondBall = -1;
     private int topSpace = 100;
     private int circleImage = R.mipmap.icon;
-    private int textColor = Color.parseColor("#CCCCCC");
-    private int selectedTextColor = Color.parseColor("#CCCCCC");
+    private int textColor = Color.parseColor(GRAY_COLOR);
+    private int selectedTextColor = Color.parseColor(GRAY_COLOR);
     private int verLineWidth = 1;
     private int horLineHeight = 1;
     private boolean is24Hour = false;
@@ -413,7 +414,7 @@ public class TimePicker extends RelativeLayout {
             if (topSpace < 100) {
                 topSpace = 100;
             }
-            shapeStrokeColor = a.getColor(R.styleable.TimePicker_shapeBorderColor, Color.parseColor("#CCCCCC"));
+            shapeStrokeColor = a.getColor(R.styleable.TimePicker_shapeBorderColor, Color.parseColor(GRAY_COLOR));
             circleImage = a.getInt(R.styleable.TimePicker_circleImage, circleImage);
             shapeStroke = a.getInt(R.styleable.TimePicker_shapeBorderWidth, shapeStroke);
             shapeRadius = a.getInt(R.styleable.TimePicker_shapeRadius, shapeRadius);
