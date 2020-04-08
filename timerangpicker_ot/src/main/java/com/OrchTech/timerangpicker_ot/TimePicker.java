@@ -538,12 +538,15 @@ public class TimePicker extends RelativeLayout {
             textView2.setVisibility(VISIBLE);
             if (selectedIndexSecondBall != -1)
                 hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
-            String hour ="";
+            String hour =hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
             if(isUp){
-                hour =hoursViewGroup.getItems().get(selectedIndexSecondBall-1).getText();
-            }
-            else{
-                hour= hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
+                if(selectedIndexSecondBall==0){
+                    if (hoursViewGroup.is24Hours()) hour = "12:00";
+                    else
+                        hour = "12:00 Am";
+                } else {
+                    hour = hoursViewGroup.getItems().get(selectedIndexSecondBall - 1).getText();
+                }
             }
             textView2.setText(hour.substring(0, 3) +
                     fraction[Math.abs(moveBall2+4)%4] + hour.substring(5));
