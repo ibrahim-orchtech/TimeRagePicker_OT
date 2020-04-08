@@ -97,6 +97,7 @@ public class TimePicker extends RelativeLayout {
 
         @Override
         public void onClickCell(int index) {
+            if(index==0)return;
             setOnReSelectCell(index);
         }
     };
@@ -339,21 +340,30 @@ public class TimePicker extends RelativeLayout {
         layout.addView(shapeView);
         layout.removeView(textView1);
         layout.removeView(textView2);
+        if(selectedIndexFirstBall!=-1)
         hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
         hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
+        if(selectedIndexFirstBall!=-1)
         textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
         textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
 
     }
     public void setOnReSelectCell(int cellIndex){
-        selectedCell = cellIndex;
-        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
-        hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
-        selectedIndexFirstBall = cellIndex-1;
         int height = (shapeView.getBalls().get(1).getY()+(shapeView.getBalls().get(1).getHeightOfCircle()/2))
                 -(shapeView.getBalls().get(0).getY()+(shapeView.getBalls().get(0).getHeightOfCircle()/2));
         int numOfMovies = height/step;
         int numOfCells = (int)(numOfMovies*stepRatio);
+        selectedCell = cellIndex;
+        if(cellIndex-1+numOfCells>23){
+            int dif = cellIndex-1+numOfCells-23;
+            setOnReSelectCell(cellIndex-dif);
+            return;
+        }
+        if(selectedIndexFirstBall!=-1)
+        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        if(selectedIndexSecondBall!=-1)
+        hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+        selectedIndexFirstBall = cellIndex-1;
         selectedIndexSecondBall = cellIndex-1+numOfCells;
         oldHeight = shapeView.getLayoutParams().height;
         layout.removeView(shapeView);
@@ -381,6 +391,7 @@ public class TimePicker extends RelativeLayout {
             layout.addView(textView2);
             layout.invalidate();
         }
+        if(selectedIndexFirstBall==-1)selectedIndexFirstBall=0;
         hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
         textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
 

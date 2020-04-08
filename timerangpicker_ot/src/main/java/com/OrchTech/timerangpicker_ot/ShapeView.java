@@ -11,6 +11,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by ibrahim.ali
@@ -138,6 +139,7 @@ public class ShapeView extends View {
         circle1.setHeight(circleHeight);
         circle1.setResource(circleImage);
         Point point1 = new Point();
+        //if(Locale.getDefault().equals(new Locale("ar"))){
         point1.x = 100;
         point1.y = 0;
         circle1.setPoint(point1);
