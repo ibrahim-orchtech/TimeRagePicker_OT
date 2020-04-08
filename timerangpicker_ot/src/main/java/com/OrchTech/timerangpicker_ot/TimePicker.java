@@ -407,10 +407,9 @@ public class TimePicker extends RelativeLayout {
                 textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
                 layout.removeView(textView1);
             } else {
-                String hour = "";
+                String hour = STRING_12_AM;
                 if (hoursViewGroup.is24Hours()) hour = STRING_12;
-                else
-                    hour = STRING_12_AM;
+
                 textView1.setText(hour);
                 textView1.setY(0);
                 textView1.setVisibility(VISIBLE);
@@ -420,45 +419,44 @@ public class TimePicker extends RelativeLayout {
             moveBall1 = 0;
 
 
-        } else if (moveBall1 == 0) {
+        }
+        else if (moveBall1 == 0) {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
 
-        } else {
+        }
+        else {
             if (selectedIndexFirstBall != -1) {
                 hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
             }
             textView1.setVisibility(VISIBLE);
             layout.removeView(textView1);
-            String hour = "";
+            String hour = STRING_12_AM;
             if (selectedIndexFirstBall >= 0) {
                 if (isUp) {
                     if (selectedIndexFirstBall == 0) {
                         if (hoursViewGroup.is24Hours()) hour = STRING_12;
-                        else
-                            hour = STRING_12_AM;
                     } else {
                         hour = hoursViewGroup.getItems().get(selectedIndexFirstBall - 1).getText();
                     }
                 } else
                     hour = hoursViewGroup.getItems().get(selectedIndexFirstBall).getText();
 
-            } else {
-                if (hoursViewGroup.is24Hours()) hour = STRING_12;
-                else
-                    hour = STRING_12_AM;
-            }
+            } else if (hoursViewGroup.is24Hours()) hour = STRING_12;
+            updateTextView1(y,hour);
 
-            textView1.setText(hour.substring(0, 3) +
-                    fraction[Math.abs(moveBall1 + 4) % 4] + hour.substring(5));
-            textView1.setLayoutParams(textView1.getLayoutParams());
-            textView1.setY(y - (topSpace / 5));
-            textView1.invalidate();
-            layout.addView(textView1);
-            layout.invalidate();
         }
 
     }
+    private void updateTextView1(int y,String hour){
 
+        textView1.setText(hour.substring(0, 3) +
+                fraction[Math.abs(moveBall1 + 4) % 4] + hour.substring(5));
+        textView1.setLayoutParams(textView1.getLayoutParams());
+        textView1.setY(y - (topSpace / 5));
+        textView1.invalidate();
+        layout.addView(textView1);
+        layout.invalidate();
+    }
     private void moveSecondBall(boolean isUp, int y) {
 
         layout.removeView(textView2);
@@ -480,9 +478,11 @@ public class TimePicker extends RelativeLayout {
                 textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
             }
             moveBall2 = 0;
-        } else if (moveBall2 == 0) {
+        }
+        else if (moveBall2 == 0) {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
-        } else {
+        }
+        else {
             textView2.setVisibility(VISIBLE);
             if (selectedIndexSecondBall != -1)
                 hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
