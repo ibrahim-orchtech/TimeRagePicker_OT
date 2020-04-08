@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by ibrahim.ali
@@ -171,7 +171,6 @@ public class TimePicker extends RelativeLayout {
                         shapeView.setLayoutParams(shapeView.getLayoutParams());
                         shapeView.updateViews(x2, shapeView.getHeight() + step);
                         shapeView.invalidate();
-                        Log.e("shapeView_height", shapeView.getY() + " " + shapeView.getLayoutParams().height);
 
                         showTime(FIRST_BALL_ID, true, (int) shapeView.getY() + (shapeView.getCircleHeight() / 2));
                     }
@@ -193,7 +192,6 @@ public class TimePicker extends RelativeLayout {
                         shapeView.setLayoutParams(shapeView.getLayoutParams());
                         shapeView.updateViews(x2, shapeView.getHeight() - step);
                         shapeView.invalidate();
-                        Log.e("shapeView", shapeView.getY() + " " + shapeView.getLayoutParams().height);
 
                         showTime(FIRST_BALL_ID, false, (int) (shapeView.getY() + (shapeView.getCircleHeight() / 2)));
                     }
@@ -225,7 +223,6 @@ public class TimePicker extends RelativeLayout {
                         shapeView.setLayoutParams(shapeView.getLayoutParams());
                         shapeView.updateViews(x2, shapeView.getHeight() + step);
                         shapeView.invalidate();
-                        Log.e("shapeView", shapeView.getY() + " " + shapeView.getLayoutParams().height);
 
                         showTime(SECOND_BALL_ID, false, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
 
@@ -245,7 +242,6 @@ public class TimePicker extends RelativeLayout {
                         shapeView.setLayoutParams(shapeView.getLayoutParams());
                         shapeView.updateViews(x2, shapeView.getHeight() - step);
                         shapeView.invalidate();
-                        Log.e("shapeView", shapeView.getY() + " " + shapeView.getLayoutParams().height);
                         showTime(SECOND_BALL_ID, true, (int) (shapeView.getY() + shapeView.getLayoutParams().height - (shapeView.getCircleHeight() / 2)));
                     }
                 }
@@ -320,31 +316,31 @@ public class TimePicker extends RelativeLayout {
         }
         selectedIndexFirstBall = selectedCell - 1;
         selectedIndexSecondBall = selectedCell;
-        Log.e("first_selection", selectedIndexFirstBall + " " + selectedIndexSecondBall);
         layout.removeView(shapeView);
         buildShape();
         LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 (bottom - top) + (shapeView.getCircleHeight()));
         oldHeight = shapeLayoutParams.height;
-        shapeView.setX(hoursViewGroup.getTextWidth() + 30);
-        shapeLayoutParams.setMargins(0, 0, 0, 0);
+        if(Locale.getDefault().equals(new Locale("ar"))){
+            shapeView.setX(0);
+            shapeLayoutParams.setMargins(0, 0, 160, 0);
+        }else{
+            shapeView.setX(hoursViewGroup.getTextWidth() + 30);
+            shapeLayoutParams.setMargins(0, 0, 0, 0);
+        }
         shapeView.setY(positions.get(selectedCell).second - (shapeView.getCircleHeight() / 2));
         shapeView.setLayoutParams(shapeLayoutParams);
         shapeView.invalidate();
-        //shapeView.requestLayout();
-        Log.e("height_",shapeView.getHeight()+" "+shapeLayoutParams.height);
-        Log.e("shapeView", shapeView.getY() + (shapeView.getCircleHeight() / 2) + "");
-        for (int i = 0; i < 24; i++) {
-            Log.e("shapeView_" + i, positions.get(i).second + " ");
-        }
         layout.addView(shapeView);
         layout.removeView(textView1);
         layout.removeView(textView2);
-        if(selectedIndexFirstBall!=-1)
-        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
+        if(selectedIndexFirstBall!=-1) {
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
+        }
         hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
-        if(selectedIndexFirstBall!=-1)
-        textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
+        if(selectedIndexFirstBall!=-1) {
+            textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
+        }
         textView2.setText(hoursViewGroup.getItems().get(selectedIndexSecondBall).getText());
 
     }
@@ -359,10 +355,12 @@ public class TimePicker extends RelativeLayout {
             setOnReSelectCell(cellIndex-dif);
             return;
         }
-        if(selectedIndexFirstBall!=-1)
-        hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
-        if(selectedIndexSecondBall!=-1)
-        hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+        if(selectedIndexFirstBall!=-1) {
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        }
+        if(selectedIndexSecondBall!=-1) {
+            hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+        }
         selectedIndexFirstBall = cellIndex-1;
         selectedIndexSecondBall = cellIndex-1+numOfCells;
         oldHeight = shapeView.getLayoutParams().height;
