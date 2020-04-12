@@ -385,9 +385,7 @@ public class TimePicker extends RelativeLayout {
             moveSecondBall(isUp, y);
         }
     }
-
-    private void moveFirstBall(boolean isUp, int y) {
-
+    private void updateFirstBallMove(boolean isUp){
         layout.removeView(textView1);
         if (isUp) moveBall1--;
         else
@@ -396,54 +394,64 @@ public class TimePicker extends RelativeLayout {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
         }
 
+    }
+    private void markSelectedCellForTopCircle(){
+        if (selectedIndexFirstBall != -1)
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        if (moveBall1 < 0) selectedIndexFirstBall -= 1;
+        else selectedIndexFirstBall += 1;
+        if (selectedIndexFirstBall != -1) {
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
+            textView1.setVisibility(GONE);
+            textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
+            layout.removeView(textView1);
+        } else {
+            String hour = STRING_12_AM;
+            if (hoursViewGroup.is24Hours()) hour = STRING_12;
+
+            textView1.setText(hour);
+            textView1.setY(0);
+            textView1.setVisibility(VISIBLE);
+            layout.addView(textView1);
+
+        }
+        moveBall1 = 0;
+
+
+
+    }
+    private void displayFractionForTopCircle(boolean isUp,int y){
+        if (selectedIndexFirstBall != -1) {
+            hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
+        }
+        textView1.setVisibility(VISIBLE);
+        layout.removeView(textView1);
+        String hour = STRING_12_AM;
+        if (selectedIndexFirstBall >= 0) {
+            if (isUp) {
+                if (selectedIndexFirstBall == 0) {
+                    if (hoursViewGroup.is24Hours()) hour = STRING_12;
+                } else {
+                    hour = hoursViewGroup.getItems().get(selectedIndexFirstBall - 1).getText();
+                }
+            } else
+                hour = hoursViewGroup.getItems().get(selectedIndexFirstBall).getText();
+
+        } else if (hoursViewGroup.is24Hours()) hour = STRING_12;
+        updateTextView1(y,hour);
+
+    }
+    private void moveFirstBall(boolean isUp, int y) {
+        updateFirstBallMove(isUp);
         if (Math.abs(moveBall1) == 4) {
-            if (selectedIndexFirstBall != -1)
-                hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
-            if (moveBall1 < 0) selectedIndexFirstBall -= 1;
-            else selectedIndexFirstBall += 1;
-            if (selectedIndexFirstBall != -1) {
-                hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
-                textView1.setVisibility(GONE);
-                textView1.setText(hoursViewGroup.getItems().get(selectedIndexFirstBall).getText());
-                layout.removeView(textView1);
-            } else {
-                String hour = STRING_12_AM;
-                if (hoursViewGroup.is24Hours()) hour = STRING_12;
-
-                textView1.setText(hour);
-                textView1.setY(0);
-                textView1.setVisibility(VISIBLE);
-                layout.addView(textView1);
-
-            }
-            moveBall1 = 0;
-
-
+            markSelectedCellForTopCircle();
         }
         else if (moveBall1 == 0) {
             hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(true);
 
         }
         else {
-            if (selectedIndexFirstBall != -1) {
-                hoursViewGroup.getItems().get(selectedIndexFirstBall).setSelected(false);
-            }
-            textView1.setVisibility(VISIBLE);
-            layout.removeView(textView1);
-            String hour = STRING_12_AM;
-            if (selectedIndexFirstBall >= 0) {
-                if (isUp) {
-                    if (selectedIndexFirstBall == 0) {
-                        if (hoursViewGroup.is24Hours()) hour = STRING_12;
-                    } else {
-                        hour = hoursViewGroup.getItems().get(selectedIndexFirstBall - 1).getText();
-                    }
-                } else
-                    hour = hoursViewGroup.getItems().get(selectedIndexFirstBall).getText();
-
-            } else if (hoursViewGroup.is24Hours()) hour = STRING_12;
-            updateTextView1(y,hour);
-
+            displayFractionForTopCircle(isUp,y);
         }
 
     }
@@ -483,28 +491,31 @@ public class TimePicker extends RelativeLayout {
             hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(true);
         }
         else {
-            textView2.setVisibility(VISIBLE);
-            if (selectedIndexSecondBall != -1)
-                hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
-            String hour = hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
-            if (isUp) {
-                if (selectedIndexSecondBall == 0) {
-                    if (hoursViewGroup.is24Hours()) hour = STRING_12;
-                    else
-                        hour = STRING_12_AM;
-                } else {
-                    hour = hoursViewGroup.getItems().get(selectedIndexSecondBall - 1).getText();
-                }
-            }
-            textView2.setText(hour.substring(0, 3) +
-                    fraction[Math.abs(moveBall2 + 4) % 4] + hour.substring(5));
-            textView2.setY(y - (topSpace / 5));
-            textView2.invalidate();
-            layout.addView(textView2);
-            layout.invalidate();
+            displayFractionForBottomCircle(isUp,y);
         }
     }
+    void displayFractionForBottomCircle(boolean isUp,int y){
+        textView2.setVisibility(VISIBLE);
+        if (selectedIndexSecondBall != -1)
+            hoursViewGroup.getItems().get(selectedIndexSecondBall).setSelected(false);
+        String hour = hoursViewGroup.getItems().get(selectedIndexSecondBall).getText();
+        if (isUp) {
+            if (selectedIndexSecondBall == 0) {
+                if (hoursViewGroup.is24Hours()) hour = STRING_12;
+                else
+                    hour = STRING_12_AM;
+            } else {
+                hour = hoursViewGroup.getItems().get(selectedIndexSecondBall - 1).getText();
+            }
+        }
+        textView2.setText(hour.substring(0, 3) +
+                fraction[Math.abs(moveBall2 + 4) % 4] + hour.substring(5));
+        textView2.setY(y - (topSpace / 5));
+        textView2.invalidate();
+        layout.addView(textView2);
+        layout.invalidate();
 
+    }
     void moveFirstBallUp(int x2) {
         countBall1--;
         if (countBall1 % numOfStepPerCell == 0)
