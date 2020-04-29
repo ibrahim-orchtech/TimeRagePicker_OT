@@ -260,7 +260,7 @@ public class TimePicker extends RelativeLayout {
         LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 (bottom - top) + (shapeView.getCircleHeight()));
         oldHeight = shapeLayoutParams.height;
-        if (Locale.getDefault().equals(new Locale("ar"))) {
+        if (getResources().getConfiguration().locale.equals(new Locale("ar"))) {
             shapeView.setX(0);
             shapeLayoutParams.setMargins(0, 0, 160, 0);
         } else {
