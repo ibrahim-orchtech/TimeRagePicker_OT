@@ -181,6 +181,9 @@ public class TimePicker extends RelativeLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         LayoutParams textParam2 = new LayoutParams(LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        textParam1.setMargins(10,0,10,0);
+        textParam2.setMargins(10,0,10,0);
+
         textView1 = new TextView(context);
         textView2 = new TextView(context);
         textView1.setLayoutParams(textParam1);
@@ -262,7 +265,7 @@ public class TimePicker extends RelativeLayout {
         oldHeight = shapeLayoutParams.height;
         if (getResources().getConfiguration().locale.equals(new Locale("ar"))) {
             shapeView.setX(0);
-            shapeLayoutParams.setMargins(0, 0, 140, 0);
+            shapeLayoutParams.setMargins(0, 0, 200, 0);
         } else {
             shapeView.setX(hoursViewGroup.getTextWidth() + 30);
             shapeLayoutParams.setMargins(0, 0, 0, 0);
@@ -308,8 +311,14 @@ public class TimePicker extends RelativeLayout {
         buildShape();
         LinearLayout.LayoutParams shapeLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 oldHeight);
+        if (getResources().getConfiguration().locale.equals(new Locale("ar"))) {
+            shapeLayoutParams.setMargins(0, 0, 200, 0);
+        } else {
+            shapeLayoutParams.setMargins(0, 0, 0, 0);
+        }
+
         shapeView.setLayoutParams(shapeLayoutParams);
-        shapeView.setX(hoursViewGroup.getTextWidth() + 30);
+        shapeView.setX(0);
         shapeView.setY(positions.get(selectedCell).second - (shapeView.getCircleHeight() / 2));
         shapeView.invalidate();
         layout.addView(shapeView);
