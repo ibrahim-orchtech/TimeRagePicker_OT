@@ -262,7 +262,7 @@ public class TimePicker extends RelativeLayout {
         oldHeight = shapeLayoutParams.height;
         if (getResources().getConfiguration().locale.equals(new Locale("ar"))) {
             shapeView.setX(0);
-            shapeLayoutParams.setMargins(0, 0, 160, 0);
+            shapeLayoutParams.setMargins(0, 0, 140, 0);
         } else {
             shapeView.setX(hoursViewGroup.getTextWidth() + 30);
             shapeLayoutParams.setMargins(0, 0, 0, 0);
